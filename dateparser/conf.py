@@ -1,3 +1,5 @@
+import sys
+from functools import partial
 import hashlib
 from datetime import datetime
 from functools import wraps
@@ -5,6 +7,12 @@ from functools import wraps
 from dateparser.data.languages_info import language_order
 from .parser import date_order_chart
 from .utils import registry
+
+
+if sys.version_info[:2] >= (3, 9):
+    _md5 = partial(hashlib.md5, usedforsecurity=False)
+else:
+    _md5 = hashlib.md5
 
 
 @registry
@@ -46,7 +54,7 @@ class Settings:
             return 'default'
 
         keys = sorted(['%s-%s' % (key, str(settings[key])) for key in settings])
-        return hashlib.md5(''.join(keys).encode('utf-8')).hexdigest()
+        return _md5(''.join(keys).encode('utf-8')).hexdigest()
 
     @classmethod
     def _get_settings_from_pyfile(cls):
